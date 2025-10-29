@@ -1,1 +1,1 @@
-This is a libraryproject build by django
+this a web builded using django
