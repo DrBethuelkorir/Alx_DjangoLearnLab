@@ -1,5 +1,5 @@
 # Get a specific library
-library = Library.objects.get(name="City Central Library")
+Library.objects.get(name="City Central Library")
 books = library.books.all()
 
 print(f"Books in {library.name}:")
