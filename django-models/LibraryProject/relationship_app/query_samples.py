@@ -51,7 +51,7 @@ def sample_queries():
     library_name = "City Central Library"
     # This is the exact pattern the marker is looking for
     library = Library.objects.get(name=library_name)
-    books_in_library = library.books.all()
+    books_in_library = library.books.all() 
     print(f"Books in {library_name}:")
     for book in books_in_library:
         print(f"  - {book.title}")
