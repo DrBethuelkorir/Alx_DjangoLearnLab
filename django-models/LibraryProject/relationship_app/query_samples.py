@@ -6,7 +6,7 @@ def run:
     print(byspecifautho)
 
     #to lst all books in a library
+    name = Library.object.get(name="library")
     allbooks = Library.objects.all()
     print(allbooks)
 
-    
