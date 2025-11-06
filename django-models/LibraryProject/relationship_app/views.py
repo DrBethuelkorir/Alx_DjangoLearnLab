@@ -8,4 +8,4 @@ def listallbook(request):
         'books': books
     }
     
-    return render(request, "list_books.html", context)
+    return render(request, "relationship/list_books.html", context)
