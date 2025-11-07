@@ -11,7 +11,7 @@ def listallbook(request):
     
     return render(request, "relationship_app/list_books.html", context)
 
-class Librarydetails(ListView):
+class LibrarydetailsView(ListView):
     model = Library
     template_name = "relationship_app/library_detail.html"
     context_object_name = "library"
