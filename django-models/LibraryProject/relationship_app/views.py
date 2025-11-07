@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from relationship_app.models import Book,Library
-from django.views.generic import ListView
+from .models import Library, Book
+from django.views.generic import ListView,DetailView
 def listallbook(request):
     books = Book.objects.all()
     
