@@ -22,7 +22,7 @@ class LibraryDetailsView(DetailView):
     template_name = "relationship_app/library_detail.html"
     context_object_name = "library"
 
-class SignUpView(CreateView):
+class register(CreateView):
     form_class = UserCreationForm
     template_name = 'relationship_app/register.html'
     
