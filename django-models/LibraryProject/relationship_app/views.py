@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.models import User
-
+from django.contrib.auth import login 
 
 def listallbook(request):
     books = Book.objects.all()
@@ -22,8 +22,14 @@ class LibraryDetailsView(DetailView):
     template_name = "relationship_app/library_detail.html"
     context_object_name = "library"
 
-class signupview(CreateView):
-    model = User
+class SignUpView(CreateView):
     form_class = UserCreationForm
-    succeful_url = reverse_lazy("login")
-    template_name = "relationship_app/register.html"
+    template_name = 'relationship_app/register.html'
+    
+    def get_success_url(self):
+        return reverse_lazy('book_list')  # Where to redirect after successful registration+login
+    
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)  # Log the user in automatically
+        return HttpResponseRedirect(self.get_success_url())
