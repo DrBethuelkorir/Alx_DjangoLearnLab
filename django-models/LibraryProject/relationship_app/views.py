@@ -23,7 +23,7 @@ class LibraryDetailsView(DetailView):
     context_object_name = "library"
 
 class register(CreateView):
-    form_class = UserCreationForm
+    form_class = UserCreationForm()
     template_name = 'relationship_app/register.html'
     
     def get_success_url(self):
