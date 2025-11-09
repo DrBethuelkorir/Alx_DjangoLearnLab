@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Library, Book
 from django.views.generic import DetailView
 from django.contrib.auth.forms import UserCreationForm
@@ -6,7 +6,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import login 
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib import messages
 
 def listallbook(request):
     books = Book.objects.all()
@@ -32,7 +33,7 @@ class register(CreateView):
         login(self.request, user)
         return HttpResponseRedirect(self.get_success_url())
 
-# Role checking functions for @user_passes_test
+# Role checking functions
 def admin_check(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
@@ -42,7 +43,7 @@ def librarian_check(user):
 def member_check(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
-# Role-based views with exact names specified
+# Role-based views
 @user_passes_test(admin_check, login_url='/login/')
 def admin_view(request):
     return render(request, 'relationship_app/admin_view.html')
@@ -54,3 +55,42 @@ def librarian_view(request):
 @user_passes_test(member_check, login_url='/login/')
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
+
+# Step 2: Views with custom permissions
+@permission_required('relationship_app.can_add_book', login_url='/login/')
+def add_book(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        library_id = request.POST.get('library')
+        if title and author:
+            library = Library.objects.get(id=library_id) if library_id else None
+            Book.objects.create(title=title, author=author, library=library)
+            messages.success(request, 'Book added successfully!')
+            return redirect('book_list')
+    libraries = Library.objects.all()
+    return render(request, 'relationship_app/add_book.html', {'libraries': libraries})
+
+@permission_required('relationship_app.can_change_book', login_url='/login/')
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book.title = request.POST.get('title')
+        book.author = request.POST.get('author')
+        library_id = request.POST.get('library')
+        if library_id:
+            book.library = Library.objects.get(id=library_id)
+        book.save()
+        messages.success(request, 'Book updated successfully!')
+        return redirect('book_list')
+    libraries = Library.objects.all()
+    return render(request, 'relationship_app/edit_book.html', {'book': book, 'libraries': libraries})
+
+@permission_required('relationship_app.can_delete_book', login_url='/login/')
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book.delete()
+        messages.success(request, 'Book deleted successfully!')
+        return redirect('book_list')
+    return render(request, 'relationship_app/delete_book.html', {'book': book})
