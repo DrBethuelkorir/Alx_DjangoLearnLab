@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import login 
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.decorators import user_passes_test, permission_required  # ADD THIS IMPORT
 from django.contrib import messages
 
 def listallbook(request):
@@ -56,7 +56,7 @@ def librarian_view(request):
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
 
-# Step 2: Views with custom permissions
+# Views with custom permissions
 @permission_required('relationship_app.can_add_book', login_url='/login/')
 def add_book(request):
     if request.method == 'POST':
