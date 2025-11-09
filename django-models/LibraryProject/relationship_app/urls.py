@@ -14,8 +14,8 @@ urlpatterns = [
     path('librarian/dashboard/', views.librarian_view, name='librarian_view'),
     path('member/dashboard/', views.member_view, name='member_view'),
     
-    # Step 3: URLs for secured book operations
-    path('books/add/', views.add_book, name='add_book'),
-    path('books/edit/<int:book_id>/', views.edit_book, name='edit_book'),
+    # URLs for secured book operations - EXACT PATTERNS NEEDED
+    path('add_book/', views.add_book, name='add_book'),
+    path('edit_book/<int:book_id>/', views.edit_book, name='edit_book'),
     path('books/delete/<int:book_id>/', views.delete_book, name='delete_book'),
 ]
