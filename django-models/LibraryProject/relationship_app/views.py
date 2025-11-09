@@ -6,7 +6,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import login 
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import user_passes_test, permission_required  # ADD THIS IMPORT
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import permission_required  # EXACT IMPORT LINE
 from django.contrib import messages
 
 def listallbook(request):
