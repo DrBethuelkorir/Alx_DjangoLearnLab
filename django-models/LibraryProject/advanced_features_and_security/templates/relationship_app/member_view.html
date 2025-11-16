@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Member Dashboard</title>
+</head>
+<body>
+    <h1>Member Dashboard</h1>
+    <p>Welcome, Member! You can browse and borrow books.</p>
+    <ul>
+        <li>Browse Books</li>
+        <li>View Borrowing History</li>
+        <li>Manage Your Account</li>
+    </ul>
+    <a href="{% url 'book_list' %}">Back to Books</a> |
+    <a href="{% url 'logout' %}">Logout</a>
+</body>
+</html>
