@@ -1,7 +1,66 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+
+class CustomUserManager(BaseUserManager):
+    """Define a model manager for User model with no username field."""
+    
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        """Create and save a User with the given email and password."""
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Create and save a regular User with the given email and password."""
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        """Create and save a SuperUser with the given email and password."""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class CustomUser(AbstractUser):
+    """Custom User model that uses email instead of username."""
+    
+    username = None
+    email = models.EmailField(_('email address'), unique=True)
+    date_of_birth = models.DateField(_('date of birth'), null=True, blank=True)
+    profile_photo = models.ImageField(
+        _('profile photo'), 
+        upload_to='profile_photos/', 
+        null=True, 
+        blank=True
+    )
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+
+    def __str__(self):
+        return self.email
+
 
 class Library(models.Model):
     name = models.CharField(max_length=100)
@@ -9,6 +68,7 @@ class Library(models.Model):
     
     def __str__(self):
         return self.name
+
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
@@ -26,6 +86,7 @@ class Book(models.Model):
             ("can_delete_book", "Can delete book"),
         ]
 
+
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
@@ -33,17 +94,20 @@ class UserProfile(models.Model):
         ('Member', 'Member'),
     ]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # Updated to use the custom user model
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Member')
     
     def __str__(self):
-        return f"{self.user.username} - {self.role}"
+        return f"{self.user.email} - {self.role}"
 
-@receiver(post_save, sender=User)
+
+# Updated signals to use CustomUser
+@receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
     instance.userprofile.save()
